@@ -1,0 +1,19 @@
+from cve_data.collect_gitavdisory_cve import run, parse_range_2_vers
+from rq1_statistics.accumulative import accumulative, accumulative_log4j, half_life, full_life
+from rq1_statistics.depth import depth
+from rq1_statistics.mvn_soft_version_count import count_soft_verisons
+from rq1_statistics.span import span
+from rq1_statistics.verify_pom import verify_pom, check_failed_pom
+from rq1_statistics.versions import versions
+from rq2_blocker.depmanagement_check import check_confirmed
+from rq2_blocker.first_dep_analysis import analyze_lagged_first_dep
+from rq2_blocker.get_log4j_blockers import get_log4j_blockers
+from rq2_blocker.other_deps_analysis import other_dep_analysis
+from rq2_blocker.vul_lib_patch_date import patch_date_analysis, patch_cve_libver_count, non_patch_count_gav
+from rq3_solutions.checkCurrentRange import check_currrent_range
+from rq4_demo.recover_log4j import recover_4_log4j
+from soft_version_query import get_blockers_affections, get_log4j, analyze_all_vuls, analyze_all_patches
+
+
+
+get_log4j()

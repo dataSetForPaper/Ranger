@@ -1,2 +1,2 @@
-# Ranger
-This is a repository for empirical study and Ranger, the range restoration tool for Maven of a research paper at ASE'23
+# ranger
+This is a repository for code used in Ranger, the range restoration tool
