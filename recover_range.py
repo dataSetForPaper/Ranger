@@ -71,7 +71,46 @@ def get_semb_range(dst, synb_range, callees, c):
     range = _sort(range)
     return range
 
+def get_target_clean_ver_for_pair(src, dst, iter=1, affected_gavs=[], c=None):
+    '''
+    [IMPORTANT] vulnerable versions of Log4j only serve as an example. Please supply your own vulnerability mapping data
+    Input is the source gav (dependents) and destination gav (dependencies)
+    Output is clean versions of destination gav
+    Based on the vulnerability mappings between vulnerabilities and versions
+    '''
+
+
+    vulnerable_log4j_versions = ["2.0.1", "2.1", "2.0.2", "2.3", "2.2", "2.4", "2.4.1", "2.5", "2.6", "2.6.1", "2.6.2", "2.7", "2.8", "2.8.1", "2.8.2", "2.9.0", "2.10.0", "2.11.0", "2.11.1", "2.11.2", "2.12.0", "2.12.1", "2.13.0", "2.13.1", "2.13.2", "2.13.3", "2.14.0", "2.14.1"]
+    clean_log4j_versions = ['2.3.1', '2.12.2', '2.15.0']
+    if 'org.apache.logging.log4j|log4j-core|' in dst:
+        log4j_ver = dst.replace('org.apache.logging.log4j|log4j-core|', '')
+        minor = log4j_ver.split('.')[1]
+
+        if int(minor)<=3:
+            return clean_log4j_versions[0]
+        elif int(minor)<=12:
+            return clean_log4j_versions[1]
+        elif int(minor)<=15:
+            return clean_log4j_versions[2]
+    else:
+        # Our data was supplied by a closed-source knowledge graph built on restful API
+        g,a,v = dst.split('|')
+        response = requests.post(f'http://{graph_api_host}:8090/findVersionsUnaffected', json={'name': a, 'vendor':g, 'version':v}).text
+    
+        if '404' not in response and response != '':
+            return response
+        else:
+            return []
+
+
 def get_target_clean_ver(edge, iter=1, affected_gavs=[], c=None):
+    '''
+    [IMPORTANT] vulnerable versions of Log4j only serve as an example. Please supply your own vulnerability mapping data
+    Input is the source gav (dependents) and destination gav (dependencies)
+    Output is clean versions of destination gav
+    Based on the vulnerability mappings between vulnerabilities and versions
+    '''
+
     src, dst, lvl = edge.split('%')
     vulnerable_log4j_versions = ["2.0.1", "2.1", "2.0.2", "2.3", "2.2", "2.4", "2.4.1", "2.5", "2.6", "2.6.1", "2.6.2", "2.7", "2.8", "2.8.1", "2.8.2", "2.9.0", "2.10.0", "2.11.0", "2.11.1", "2.11.2", "2.12.0", "2.12.1", "2.13.0", "2.13.1", "2.13.2", "2.13.3", "2.14.0", "2.14.1"]
     clean_log4j_versions = ['2.3.1', '2.12.2', '2.15.0']
@@ -86,13 +125,14 @@ def get_target_clean_ver(edge, iter=1, affected_gavs=[], c=None):
         elif int(minor)<=15:
             return clean_log4j_versions[2]
     else:
+        # Our data was supplied by a closed-source knowledge graph built on restful API
         g,a,v = dst.split('|')
-        response = requests.post(f'http://{graph_api_host}:8090/findVersionUnaffectedByLog4j', json={'name': a, 'vendor':g, 'version':v}).text
-
+        response = requests.post(f'http://{graph_api_host}:8090/findVersionsUnaffected', json={'name': a, 'vendor':g, 'version':v}).text
+    
         if '404' not in response and response != '':
             return response
         else:
-            return ''
+            return []
 
 
 
@@ -116,5 +156,24 @@ def recover_range_4_edge(edge, iter, c, affected_gavs=[]):
     else:
         return '['+dv+','+target_ver+']', callees
 
+def recover_range_4_dependency(src, dst, c, affected_gavs=[]):
+    dg, da, dv = dst.split('|')
+    dga = dg+'|'+da
+    src_jar = get_jar_path(src)
+    callers = get_root_callees(src_jar)
+    callees = get_callees(dst, callers, c)
 
+    target_vers = get_target_clean_ver_for_pair(src, dst, iter)
+    if target_vers == []:
+        return "No suitable version", callees
+    version_range = []
+    for target_ver in target_vers:
+        if len(callees) == 0:
+            version_range.append(target_ver)
+        incom_apis = set(get_incom_apis(c, dga, dv, target_ver))
+        if len(incom_apis.intersection(callees)) > 0:
+            version_range.append(target_ver)
+        else:
+            version_range.append(target_ver)
+    return version_range
 

@@ -1,6 +1,6 @@
 
 # Working directory
-working_dir =
+working_dir = 
 graph_dir = 
 
 
