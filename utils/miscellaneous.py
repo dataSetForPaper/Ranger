@@ -26,19 +26,8 @@ def get_libvers(edges):
         ret2.add(str(edge[1]))
     return ret, ret2
 
-def get_path(g,a,v):
-    download_path = '/home/jiahui/jar-engine/data/maven_2021'
-    path2 = '/home/jiahui/jar-engine/data/maven_2020'
-    path3 = '/home/jiahui/jar-engine/data/maven'
-    path4 = '/home/jiahui/jar-engine/data/maven_2020_166'
-    jar = os.path.join(download_path, g, a, v, a + '-' + v + '.jar')
-    if not os.path.exists(jar):
-        jar = os.path.join(path2, g, a, v, a + '-' + v + '.jar')
-        if not os.path.exists(jar):
-            jar = os.path.join(path3, g, a, v, a + '-' + v + '.jar')
-            if not os.path.exists(jar):
-                jar = os.path.join(path4, g, a, v, a + '-' + v + '.jar')
-    return jar
+def get_path(g, a, v):
+    return os.path.join(jar_path, a + '-' + v + '.jar')
 
 def get_jar_path(gav1):
     g, a, v = gav1.split('|')

@@ -6,20 +6,23 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import pymongo
+import os
+import sys
 from datetime import datetime
 
 from config import mongodb_host, mongodb_port, semver_host, semver_port
+print(os.path.basename(os.path.basename(sys.argv[0])))
+if os.path.basename(sys.argv[0])!='production_entry.py':
+    Host = '119.8.168.13'
+    Port = 5432
+    DB = 'cvetriage'
+    User = 'cvetriage'
+    Password = ';Vj93rquRi8aTB'
 
-Host = '119.8.168.13'
-Port = 5432
-DB = 'cvetriage'
-User = 'cvetriage'
-Password = ';Vj93rquRi8aTB'
-
-c = pymongo.MongoClient(mongodb_host,
-                        port=mongodb_port)
-maven_deps = c['library-crawler']['maven_deps']
-maven = c['library-crawler']['maven']
+    c = pymongo.MongoClient(mongodb_host,
+                            port=mongodb_port)
+    maven_deps = c['library-crawler']['maven_deps']
+    maven = c['library-crawler']['maven']
 def update_cvss(collection, cvss_col):
     timestamp = collection.find_one({'key': 'timestamp'})['timestamp']
     cvss_col.create_index('cve')

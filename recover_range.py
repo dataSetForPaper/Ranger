@@ -85,13 +85,7 @@ def get_target_clean_ver_for_pair(src, dst, iter=1, affected_gavs=[], c=None):
     if 'org.apache.logging.log4j|log4j-core|' in dst:
         log4j_ver = dst.replace('org.apache.logging.log4j|log4j-core|', '')
         minor = log4j_ver.split('.')[1]
-
-        if int(minor)<=3:
-            return clean_log4j_versions[0]
-        elif int(minor)<=12:
-            return clean_log4j_versions[1]
-        elif int(minor)<=15:
-            return clean_log4j_versions[2]
+        return clean_log4j_versions
     else:
         # Our data was supplied by a closed-source knowledge graph built on restful API
         g,a,v = dst.split('|')
@@ -156,7 +150,7 @@ def recover_range_4_edge(edge, iter, c, affected_gavs=[]):
     else:
         return '['+dv+','+target_ver+']', callees
 
-def recover_range_4_dependency(src, dst, c, affected_gavs=[]):
+def recover_range_4_dependency(src, dst, c=None, affected_gavs=[]):
     dg, da, dv = dst.split('|')
     dga = dg+'|'+da
     src_jar = get_jar_path(src)
@@ -168,12 +162,8 @@ def recover_range_4_dependency(src, dst, c, affected_gavs=[]):
         return "No suitable version", callees
     version_range = []
     for target_ver in target_vers:
-        if len(callees) == 0:
-            version_range.append(target_ver)
-        incom_apis = set(get_incom_apis(c, dga, dv, target_ver))
-        if len(incom_apis.intersection(callees)) > 0:
-            version_range.append(target_ver)
-        else:
+        incom_apis = set(get_incom_apis(dga, dv, target_ver))
+        if len(incom_apis.intersection(callees)) == 0:
             version_range.append(target_ver)
     return version_range
 

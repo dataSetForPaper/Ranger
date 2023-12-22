@@ -107,9 +107,9 @@ def japicmp_jar(jar1, jar2):
     return parse_output(out)
 
 
-def get_incom_apis(c, ga, ver1, ver2):
-    jar1 = get_jar_path(ga+'|'_ver1)
-    jar2 = get_jar_path(ga+'|'_ver2)
+def get_incom_apis(ga, ver1, ver2):
+    jar1 = get_jar_path(ga+'|'+ver1)
+    jar2 = get_jar_path(ga+'|'+ver2)
     print('Calculating', ga, ver1, ver2, '\r', end='', flush=True)
     apis = list(japicmp_jar(jar1, jar2))
     if len(apis) == 0:
